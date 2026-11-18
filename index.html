@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dasturxon — Restoran menyusi</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#14100d;--card:#1f1915;--card2:#272019;--gold:#e6b450;--red:#d9553b;--text:#f4ece1;--muted:#a99a88;--line:#3a3027}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;line-height:1.5}
+.hero{position:relative;text-align:center;padding:90px 20px 70px;background:
+ radial-gradient(ellipse at top,rgba(230,180,80,.18),transparent 60%),
+ linear-gradient(180deg,#1d1510,var(--bg));border-bottom:1px solid var(--line)}
+.hero small{letter-spacing:.35em;color:var(--gold);font-size:.8rem;text-transform:uppercase}
+.hero h1{font-family:'Playfair Display',serif;font-size:clamp(2.6rem,8vw,5rem);font-weight:800;margin:14px 0;
+ background:linear-gradient(90deg,#f6d78b,#e6b450,#d9553b);-webkit-background-clip:text;background-clip:text;color:transparent}
+.hero p{color:var(--muted);max-width:520px;margin:0 auto}
+nav{position:sticky;top:0;z-index:10;display:flex;gap:8px;justify-content:center;flex-wrap:wrap;padding:12px;
+ background:rgba(20,16,13,.92);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+nav a{color:var(--text);text-decoration:none;padding:9px 18px;border-radius:30px;background:var(--card);
+ border:1px solid var(--line);font-size:.92rem;font-weight:500;transition:.2s}
+nav a:hover,nav a.active{background:var(--gold);color:#1a1209;border-color:var(--gold)}
+main{max-width:1200px;margin:0 auto;padding:20px 18px 60px}
+section{padding-top:50px}
+.title{display:flex;align-items:center;gap:16px;margin-bottom:26px}
+.title h2{font-family:'Playfair Display',serif;font-size:clamp(1.7rem,4vw,2.4rem)}
+.title span.ic{font-size:2rem}
+.title::after{content:"";flex:1;height:1px;background:linear-gradient(90deg,var(--gold),transparent)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:22px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;overflow:hidden;
+ transition:transform .25s,box-shadow .25s,border-color .25s;display:flex;flex-direction:column}
+.card:hover{transform:translateY(-6px);box-shadow:0 18px 40px rgba(0,0,0,.45);border-color:var(--gold)}
+.ph{position:relative;aspect-ratio:4/3;overflow:hidden;background:linear-gradient(135deg,#3a2a1c,#1f1915)}
+.ph img{width:100%;height:100%;object-fit:cover;display:block;opacity:0;transition:opacity .6s,transform .6s}
+.ph img.on{opacity:1}
+.card:hover .ph img{transform:scale(1.07)}
+.ph .fb{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:3.4rem;opacity:.55}
+.ph img.on ~ .fb{display:none}
+.body{padding:16px 18px 18px;display:flex;flex-direction:column;gap:6px;flex:1}
+.row{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+.row h3{font-family:'Playfair Display',serif;font-size:1.15rem}
+.price{color:var(--gold);font-weight:600;white-space:nowrap;font-size:.95rem}
+.desc{color:var(--muted);font-size:.86rem}
+footer{text-align:center;padding:40px 20px;border-top:1px solid var(--line);color:var(--muted);font-size:.85rem}
+footer b{color:var(--gold)}
+@media(max-width:520px){.grid{grid-template-columns:1fr 1fr;gap:12px}.body{padding:12px}.row{flex-direction:column;gap:2px}.desc{display:none}.hero{padding:60px 16px 45px}}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <small>Xush kelibsiz</small>
+  <h1>Dasturxon</h1>
+  <p>Milliy taomlar, shirinliklar, fast food, mazali shashliklar va sovuq-issiq ichimliklar — barchasi bir joyda.</p>
+</header>
+
+<nav id="nav"></nav>
+<main id="menu"></main>
+
+<footer>
+  <b>Dasturxon</b> — Yoqimli ishtaha! · Narxlar so'mda ko'rsatilgan.<br>
+  Rasmlar Wikipedia / Wikimedia Commons'dagi haqiqiy fotosuratlardan olinadi.
+</footer>
+
+<script>
+// [nomi, narxi, tavsif, emoji (rasm topilmasa), Wikipedia sahifa nomi]
+const MENU = [
+ {id:'milliy', icon:'🥘', title:'Milliy taomlar', items:[
+  ['Osh (Palov)','45 000','Guruch, sabzi, go\'sht va zira bilan qozonda','🍛','Plov'],
+  ['Somsa','12 000','Tandirda pishgan, go\'shtli qatlama somsa','🥟','Samsa_(food)'],
+  ['Manti','38 000','Bug\'da pishirilgan yirik go\'shtli manti','🥟','Manti'],
+  ['Lag\'mon','35 000','Qo\'lda cho\'zilgan lag\'mon va sabzavotli sho\'rva','🍜','Lagman'],
+  ['Shurva','40 000','Qo\'y go\'shti va sabzavotli quyuq sho\'rva','🍲','Shurpa'],
+  ['Dimlama','42 000','Go\'sht va sabzavotlar o\'z sharbatida dimlangan','🍲','Dimlama'],
+  ['Norin','48 000','Yupqa xamir va ot go\'shtidan sovuq taom','🍝','Naryn_(food)'],
+  ['Chuchvara','30 000','Mayda go\'shtli chuchvara, ko\'katli','🥟','Chuchvara'],
+  ['Mastava','32 000','Guruchli, go\'shtli va sabzavotli sho\'rva','🍲','Mastava'],
+  ['Do\'lma','36 000','Uzum bargiga o\'ralgan go\'shtli do\'lma','🍃','Dolma'],
+  ['Beshbarmoq','55 000','Qaynatma go\'sht va xamir, piyoz sho\'rvasi bilan','🍖','Beshbarmak'],
+  ['Qazi','65 000','An\'anaviy ot go\'shti kolbasasi','🍖','Kazy'],
+  ['Tandir non','6 000','Tandirda yopilgan issiq patir','🍞','Tandoor']
+ ]},
+ {id:'shirin', icon:'🍰', title:'Shirinliklar', items:[
+  ['Paxlava','18 000','Yong\'oq va asalli qatlama shirinlik','🍯','Baklava'],
+  ['Chak-chak','20 000','Asalga to\'yingan qovurilgan xamir','🍯','Chak-chak'],
+  ['Halva','15 000','Yong\'oq va kunjutli an\'anaviy halva','🍬','Halva'],
+  ['Sumalak','16 000','Navro\'z uchun maxsus bug\'doy o\'simtasidan','🌾','Sumalak'],
+  ['Novvot','10 000','Kristallashgan shakar, choy bilan yaxshi','🍬','Rock_candy'],
+  ['Lokum','14 000','Yumshoq, yong\'oqli sharqona shirinlik','🍬','Turkish_delight'],
+  ['Tiramisu','28 000','Qahvali, maskarponeli italyan deserti','🍰','Tiramisu'],
+  ['Cheesecake','30 000','Yumshoq pishloqli tort','🍰','Cheesecake'],
+  ['Medovik','25 000','Asalli qatlama tort, smetanali krem','🎂','Honey_cake'],
+  ['Napoleon','24 000','Qatlama xamir va vanilli krem','🥮','Mille-feuille'],
+  ['Eklyer','17 000','Kremli va shokoladli glazurli','🥐','Éclair'],
+  ['Brauni','22 000','Quyuq shokoladli yong\'oqli pirog','🍫','Brownie'],
+  ['Muzqaymoq','12 000','Vanil, shokolad va qulupnay ta\'mlarida','🍨','Ice_cream'],
+  ['Kapkeyk','15 000','Kremli mayda tort','🧁','Cupcake']
+ ]},
+ {id:'fastfood', icon:'🍔', title:'Fast food', items:[
+  ['Gamburger','32 000','Mol go\'shtli kotlet, pishloq va yangi sabzavotlar','🍔','Hamburger'],
+  ['Cheeseburger','35 000','Ikki qavat pishloqli burger','🍔','Cheeseburger'],
+  ['Xot-dog','18 000','Yumshoq non va qaynoq sosiska','🌭','Hot_dog'],
+  ['Kartoshka fri','14 000','Qarsildoq oltin rangli kartoshka','🍟','French_fries'],
+  ['Pitsa','65 000','Pishloqli va pomidorli italyan pitsasi','🍕','Pizza'],
+  ['Naggets','28 000','Qarsildoq tovuq bo\'laklari','🍗','Chicken_nugget'],
+  ['Qovurilgan tovuq','40 000','Maxsus ziravorli qarsildoq tovuq','🍗','Fried_chicken'],
+  ['Shaurma','30 000','Lavashga o\'ralgan go\'sht va sabzavotlar','🌯','Shawarma'],
+  ['Donar kebab','34 000','Nonda yoki lavashda donar go\'shti','🥙','Doner_kebab'],
+  ['Klub sendvich','33 000','Tovuq, bekon va sabzavotli sendvich','🥪','Club_sandwich'],
+  ['Tako','29 000','Go\'shtli makkajo\'xori tortilyasi','🌮','Taco'],
+  ['Burrito','31 000','Guruch, loviya va go\'shtli o\'ram','🌯','Burrito'],
+  ['Piyoz halqalari','16 000','Qarsildoq qovurilgan piyoz','🧅','Onion_ring'],
+  ['Korndog','19 000','Makkajo\'xori xamirida qovurilgan sosiska','🌭','Corn_dog']
+ ]},
+ {id:'shashlik', icon:'🍢', title:'Shashliklar', items:[
+  ['Qo\'y go\'shti shashlik','22 000','Ko\'mir olovida pishirilgan yangi qo\'y go\'shti','🍢','Shashlik'],
+  ['Mol go\'shti shashlik','20 000','Piyoz bilan marinadlangan mol go\'shti','🍢','Shish_kebab'],
+  ['Tovuq shashlik','16 000','Yumshoq tovuq filesi, maxsus ziravorlar bilan','🍗','Chicken_tikka'],
+  ['Qiyma kabob','18 000','Qo\'lda tayyorlangan qiymali kabob','🍖','Adana_kebab'],
+  ['Lyulya kabob','18 000','Yumshoq qiymali uzun kabob','🍖','Kofta'],
+  ['Jigar shashlik','15 000','Dumba yog\'i bilan qovurilgan jigar','🍢','Souvlaki'],
+  ['Dumba shashlik','17 000','Yog\'li, sershira dumba','🍢','Kebab'],
+  ['Qovurg\'a shashlik','28 000','Suyakli qovurg\'a go\'shti','🍖','Barbecue'],
+  ['Seekh kabob','21 000','Ziravorli qiyma, shampurda','🍢','Seekh_kebab'],
+  ['Tandir tovuq','45 000','Butun tandirda pishgan tovuq','🍗','Tandoori_chicken'],
+  ['Sheesh kebab','24 000','Sabzavotli aralash shashlik','🍢','Shish_taouk'],
+  ['Yakitori','19 000','Yapon uslubidagi tovuq sixlari','🍡','Yakitori'],
+  ['Sate','19 000','Yeryong\'oq sousli sixlardagi go\'sht','🍢','Satay']
+ ]},
+ {id:'ichimlik', icon:'🥤', title:'Ichimliklar', items:[
+  ['Ko\'k choy','8 000','An\'anaviy o\'zbek ko\'k choyi','🍵','Green_tea'],
+  ['Qora choy','8 000','Xushbo\'y qaynoq qora choy','🫖','Black_tea'],
+  ['Ayron','10 000','Sovuq, tuzli qatiq ichimligi','🥛','Ayran'],
+  ['Kompot','9 000','Quritilgan mevalardan tayyorlangan','🍹','Kompot'],
+  ['Limonad','15 000','Yangi limon va yalpizli','🍋','Lemonade'],
+  ['Kvas','9 000','Nondan tayyorlangan salqin ichimlik','🍺','Kvass'],
+  ['Qahva','14 000','Yangi maydalangan donadan espresso','☕','Coffee'],
+  ['Kapuchino','20 000','Ko\'pikli sutli qahva','☕','Cappuccino'],
+  ['Apelsin sharbati','18 000','Yangi siqilgan sharbat','🍊','Orange_juice'],
+  ['Anor sharbati','22 000','Tabiiy anor sharbati','🍷','Pomegranate_juice'],
+  ['Milkshake','24 000','Sut va muzqaymoqli kokteyl','🥤','Milkshake'],
+  ['Smuzi','23 000','Mevali quyuq ichimlik','🥤','Smoothie'],
+  ['Kefir','9 000','Sog\'lom fermentlangan sut','🥛','Kefir'],
+  ['Mineral suv','6 000','Gazli yoki gazsiz','💧','Mineral_water'],
+  ['Kola','10 000','Sovuq gazli ichimlik','🥤','Coca-Cola']
+ ]}
+];
+
+const nav = document.getElementById('nav');
+const menu = document.getElementById('menu');
+const cache = (()=>{try{return JSON.parse(localStorage.getItem('imgcache')||'{}')}catch(e){return {}}})();
+const save = ()=>{try{localStorage.setItem('imgcache',JSON.stringify(cache))}catch(e){}};
+
+MENU.forEach(cat=>{
+  nav.insertAdjacentHTML('beforeend',`<a href="#${cat.id}">${cat.icon} ${cat.title}</a>`);
+  const cards = cat.items.map(([n,p,d,e,w])=>`
+    <article class="card">
+      <div class="ph" data-wiki="${w}">
+        <img alt="${n}" loading="lazy">
+        <div class="fb">${e}</div>
+      </div>
+      <div class="body">
+        <div class="row"><h3>${n}</h3><span class="price">${p} so'm</span></div>
+        <p class="desc">${d}</p>
+      </div>
+    </article>`).join('');
+  menu.insertAdjacentHTML('beforeend',`
+    <section id="${cat.id}">
+      <div class="title"><span class="ic">${cat.icon}</span><h2>${cat.title}</h2></div>
+      <div class="grid">${cards}</div>
+    </section>`);
+});
+
+// Haqiqiy fotosuratlarni Wikipedia'dan yuklash
+async function loadPhoto(box){
+  const key = box.dataset.wiki, img = box.querySelector('img');
+  const show = url=>{img.onload=()=>img.classList.add('on');img.src=url};
+  if(cache[key]){show(cache[key]);return}
+  try{
+    const r = await fetch('https://en.wikipedia.org/api/rest_v1/page/summary/'+encodeURIComponent(key)+'?redirect=true');
+    if(!r.ok) return;
+    const j = await r.json();
+    let url = j.thumbnail && j.thumbnail.source;
+    if(url){
+      url = url.replace(/\/\d+px-/,'/600px-');
+      cache[key]=url; save(); show(url);
+    }
+  }catch(e){}
+}
+const io = new IntersectionObserver(es=>es.forEach(e=>{
+  if(e.isIntersecting){io.unobserve(e.target);loadPhoto(e.target)}
+}),{rootMargin:'300px'});
+document.querySelectorAll('.ph').forEach(b=>io.observe(b));
+
+// Navigatsiyada faol bo'limni belgilash
+const links=[...nav.querySelectorAll('a')];
+const spy=new IntersectionObserver(es=>es.forEach(e=>{
+  if(e.isIntersecting){links.forEach(l=>l.classList.toggle('active',l.hash==='#'+e.target.id))}
+}),{rootMargin:'-40% 0px -55% 0px'});
+document.querySelectorAll('section').forEach(s=>spy.observe(s));
+</script>
+</body>
+</html>
